@@ -1,6 +1,7 @@
 import cql from 'cql-execution';
 import fhir from 'cql-exec-fhir';
 import fhirHelpersJson from './FHIRHelpers-4.0.1.json.js';
+import { CodeService } from 'cql-exec-vsac';
 
 /**
  * Executes logical expression written in the Clinical Quality Language (CQL) against 
@@ -21,8 +22,14 @@ export default class CqlProcessor {
       ...elmJsonDependencies
     });
     this.library = new cql.Library(elmJson, this.repository);
-    this.codeService = new cql.CodeService(valueSetJson);
+    this.codeService = new CodeService(undefined, false);
     this.executor = new cql.Executor(this.library, this.codeService, parameters);
+  }
+
+  async initValueSets() {
+    if (this.library.source.library.valueSets !== undefined) {
+      await this.codeService.ensureValueSetsInLibraryWithAPIKey(this.library, true, 'be494032-8ff9-443f-a1b1-e547055f8e5d', false);
+    }
   }
 
   /**
@@ -43,9 +50,10 @@ export default class CqlProcessor {
    * @param {string} expr - The name of an expression from elmJson
    * @returns {object} results - The results from executing the expression
    */
-  evaluateExpression(expr) {
+  async evaluateExpression(expr) {
     // Only try to evaluate an expression if we have a patient bundle loaded.
     if (this.patientSource._bundles && this.patientSource._bundles.length > 0) {
+      await this.initValueSets();
       let results = this.executor.exec_expression(expr, this.patientSource);
       this.patientSource._index = 0; // HACK: rewind the patient source
       return results.patientResults[this.patientID][expr];

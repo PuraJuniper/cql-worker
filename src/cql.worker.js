@@ -1,6 +1,7 @@
 
 import CqlProcessor from './CqlProcessor.js';
 var processor = {};
+let messageQueue = []; // 
 
 /**
  * Define an event handler for when a message is sent to this web worker.
@@ -26,19 +27,20 @@ onmessage = function(rx) {
   if ((expression = rx.data.expression) != null) {
     let tx;
     if (processor.patientSource._bundles.length > 0) {
-      let result = processor.evaluateExpression(expression);
-      tx = {
-        expression: expression,
-        result: result
-      };
+      processor.evaluateExpression(expression).then(v => {
+        this.postMessage({
+          expression: expression,
+          result: v
+        }); // send the result back
+      });
     } else {
       // If we don't have a bundle just send the expression back.
       tx = {
         expression: expression,
         result: 'WAITING_FOR_PATIENT_BUNDLE'
       }
+      this.postMessage(tx); // send the result back
     }
-    this.postMessage(tx); // send the result back
   } else if ((patientBundle = rx.data.patientBundle) != null) {
     // If the message contains a patient bundle, load it.
     processor.loadBundle(patientBundle);
