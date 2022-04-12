@@ -28,7 +28,7 @@ export default class CqlProcessor {
 
   async initValueSets() {
     if (this.library.source.library.valueSets !== undefined) {
-      await this.codeService.ensureValueSetsInLibraryWithAPIKey(this.library, true, 'be494032-8ff9-443f-a1b1-e547055f8e5d', false);
+      await this.codeService.ensureValueSetsInLibraryWithAPIKey(this.library, true, undefined, false);
     }
   }
 

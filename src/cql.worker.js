@@ -1,7 +1,6 @@
 
 import CqlProcessor from './CqlProcessor.js';
 var processor = {};
-let messageQueue = []; // 
 
 /**
  * Define an event handler for when a message is sent to this web worker.
@@ -44,7 +43,7 @@ onmessage = function(rx) {
   } else if ((patientBundle = rx.data.patientBundle) != null) {
     // If the message contains a patient bundle, load it.
     processor.loadBundle(patientBundle);
-  } else if ((elmJson = rx.data.elmJson) != null && (valueSetJson = rx.data.valueSetJson) != null) { // TODO: Allow empty value sets and check elm dependencies
+  } else if ((elmJson = rx.data.elmJson) != null) { // TODO: Allow empty value sets and check elm dependencies
     // If the message contains translated CQL (ELM JSON), use it to create a new 
     // CQL Processor object.
     parameters = rx.data.parameters;
