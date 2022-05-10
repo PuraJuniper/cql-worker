@@ -26,23 +26,24 @@ onmessage = function(rx) {
   if ((expression = rx.data.expression) != null) {
     let tx;
     if (processor.patientSource._bundles.length > 0) {
-      let result = processor.evaluateExpression(expression);
-      tx = {
-        expression: expression,
-        result: result
-      };
+      processor.evaluateExpression(expression).then(v => {
+        this.postMessage({
+          expression: expression,
+          result: v
+        }); // send the result back
+      });
     } else {
       // If we don't have a bundle just send the expression back.
       tx = {
         expression: expression,
         result: 'WAITING_FOR_PATIENT_BUNDLE'
       }
+      this.postMessage(tx); // send the result back
     }
-    this.postMessage(tx); // send the result back
   } else if ((patientBundle = rx.data.patientBundle) != null) {
     // If the message contains a patient bundle, load it.
     processor.loadBundle(patientBundle);
-  } else if ((elmJson = rx.data.elmJson) != null && (valueSetJson = rx.data.valueSetJson) != null) { // TODO: Allow empty value sets and check elm dependencies
+  } else if ((elmJson = rx.data.elmJson) != null) { // TODO: Allow empty value sets and check elm dependencies
     // If the message contains translated CQL (ELM JSON), use it to create a new 
     // CQL Processor object.
     parameters = rx.data.parameters;

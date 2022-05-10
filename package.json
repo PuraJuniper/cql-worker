@@ -14,6 +14,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "cql-exec-fhir": "^2.0.2",
+    "cql-exec-vsac": "git@github.com:PuraJuniper/cql-exec-vsac.git#2307581c2577a5321beba2ea7a6d7f7f03f80826",
     "cql-execution": "^2.4.0"
   }
 }
